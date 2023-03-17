@@ -7,11 +7,11 @@
 ## 開發事前準備
 安裝python
 開啟控制台並前往至專案資料夾
-`執行python -m venv venv`
-`執行.\venv\Scripts\activate來開啟虛擬環境`
-`執行pip install -r requirements.txt`
-`pip install line-bot-sdk 設定安裝line套件`
-`設置.env檔`
+執行`python -m venv venv`
+開啟虛擬環境`.\venv\Scripts\activate`
+安裝`pip install -r requirements.txt`
+設定安裝line套件`pip install line-bot-sdk`
+設置`.env檔`
 ## 注意事項
 開發過程中，先注意目前自己在哪個支條上
 不要再main支條上做編輯，如果知道你在幹什麼
