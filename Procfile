@@ -1,0 +1,1 @@
+python finger-linebot.py
