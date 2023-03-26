@@ -12,16 +12,22 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
+
+ROOT_DIR = (environ.Path(__file__) - 1)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4-crc)y)y@$03iddx*=v^88#5-!(%8j%29$9_n3rl4eapoh%(8'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -78,8 +84,12 @@ WSGI_APPLICATION = 'mylinebot.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',   
+        'NAME': 'SCAM',  #資料庫名稱
+        'USER': 'postgres',  #資料庫帳號
+        'PASSWORD': env('PASSWORD'),  #資料庫密碼
+        'HOST': 'localhost',  #Server(伺服器)位址
+        'PORT': '5432'  #PostgreSQL Port號
     }
 }
 
