@@ -8,4 +8,12 @@ class Message(models.Model):
     mail = models.CharField(max_length=50)
     line_id = models.CharField(max_length=50)
 
-    
+class Ministry_Interior(models.Model):
+    name = models.CharField(max_length=50)
+    time = models.DateTimeField(auto_now_add=True)
+    url = models.URLField(max_length=200)
+    line_id = models.CharField(max_length=50)
+
+class Mail(models.Model):
+    mail = models.CharField(max_length=50)
+   
