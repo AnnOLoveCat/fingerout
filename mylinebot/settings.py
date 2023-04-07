@@ -85,10 +85,10 @@ WSGI_APPLICATION = 'mylinebot.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',   
-        'NAME': 'SCAM',  #資料庫名稱
+        'NAME': 'scam',  #資料庫名稱
         'USER': 'postgres',  #資料庫帳號
         'PASSWORD': env('PASSWORD'),  #資料庫密碼
-        'HOST': 'localhost',  #Server(伺服器)位址
+        'HOST': env('HOST'),  #Server(伺服器)位址
         'PORT': '5432'  #PostgreSQL Port號
     }
 }
