@@ -20,6 +20,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env()
 
+# env variables
+
+LINE_CHANNEL_ACCESS_TOKEN = env('LINE_CHANNEL_ACCESS_TOKEN')
+LINE_CHANNEL_SECRET = env('LINE_CHANNEL_SECRET')
+
 ROOT_DIR = (environ.Path(__file__) - 1)
 
 
