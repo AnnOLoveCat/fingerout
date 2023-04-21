@@ -35,18 +35,10 @@ def callback(request):
         for event in events:
             if isinstance(event, MessageEvent):  # 如果有訊息事件
                 msg = event.message.text
-                print(msg)
-                if re.match(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$', msg):
-                    parsed_mail = urllib.parse.quote(msg)
-                    pwn_link = f'https://haveibeenpwned.com/unifiedsearch/{parsed_mail}'
-                    res = requests.get(pwn_link)
-                    html = res.content
-                    data = json.loads(html)
-                    print(json.dumps(data, indent=2))
 
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
-                    TextSendMessage(text=event.message.text)
+                    TextSendMessage(text=msg)
                 )
         return HttpResponse()
     else:
