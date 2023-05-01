@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from fingerlinebot.views import main
 
 urlpatterns = [
+    path('', main,name='main'),
     path('admin/', admin.site.urls),
     path('fingerlinebot/', include('fingerlinebot.urls')) #包含應用程式的網址
 ]

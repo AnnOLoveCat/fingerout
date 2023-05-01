@@ -43,3 +43,6 @@ def callback(request):
         return HttpResponse()
     else:
         return HttpResponseBadRequest()
+
+def main(*args, **kwargs):
+    return HttpResponse("<h1>Hello World!</h1>")
