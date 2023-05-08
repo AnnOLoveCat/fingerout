@@ -14,6 +14,6 @@ class Ministry_Interior(models.Model):
     url = models.URLField(max_length=200)
     line_id = models.CharField(max_length=50)
 
-class Mail(models.Model):
+class Mails(models.Model):
     mail = models.CharField(max_length=50)
-   
+    used = models.CharField(max_length=5)
