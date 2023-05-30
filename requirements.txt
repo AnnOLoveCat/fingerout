@@ -1,4 +1,5 @@
 Django==3.2.18
-line-bot-sdk==2.2.1
 django-environ==0.10.0
+django-extensions==3.2.1
+line-bot-sdk==2.2.1
 psycopg2

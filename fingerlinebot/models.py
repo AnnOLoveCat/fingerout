@@ -1,6 +1,7 @@
 from django.db import models
-from datetime import date
+from datetime import date,datetime
 
+format = '%Y/%m/%d'
 # Create your models here.
 class Message(models.Model):
     name = models.CharField(max_length=50)
@@ -11,7 +12,7 @@ class Message(models.Model):
 
 class Ministry_Interior(models.Model):
     line_id = models.CharField(max_length=50)
-    inform_date = models.DateField(default=date.today)
+    inform_date = models.CharField(max_length=50)
 
 class Mails(models.Model):
     mail = models.CharField(max_length=50)
