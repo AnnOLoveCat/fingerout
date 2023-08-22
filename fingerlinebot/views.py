@@ -5,12 +5,14 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.core import serializers
+from django.forms import model_to_dict
  
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import ( 
     MessageEvent,
     TextSendMessage,
+    LocationMessage,
     TemplateSendMessage,
     ButtonsTemplate,
     MessageTemplateAction,
@@ -55,10 +57,14 @@ def callback(request):
                 #篩選資料庫裡的Mails資料
                 accounts = Mails.objects.filter(mail=user_msg)
                 # #篩選資料庫資料庫裡的News資料
-                news_data = serializers.serialize('json', News.objects.all().filter(pk=1),fields=('news_title','news_content'))
+                news_information = News.objects.all().values('news_title','news_content').filter(pk=1)
+                news_data = json.dumps(list(news_information),ensure_ascii=False)
+                data = json.loads(news_data)
+
                 #回覆給使用者訊息
                 message = []
 
+                #功能選單
                 if user_msg == '更多功能':
                     line_bot_api.reply_message(  # 回復傳入的訊息文字
                         event.reply_token,
@@ -77,22 +83,26 @@ def callback(request):
                             )
                         )
                     )
-                
+                    
                 if user_msg == '新聞':
-                    message.append(TextSendMessage(text=news_data))
+                    title = data[0]['news_title']
+                    content = data[0]['news_content']
+                    message.append(TextSendMessage(text = '最新新聞：' + title + '\n' + '內容：' + content))
 
                 
                 for account in accounts:
                     #判斷使用者輸入的帳號是否被使用過，回復傳入的訊息文字
                     if user_msg == account.mail and account.used == '是':
-                        message.append(TextSendMessage(text= account.mail + '\n' +'此帳號有被使用過！！！'))
+                        message.append(TextSendMessage(text = account.mail + '\n' +'此帳號有被使用過！！！'))
                     else:
-                        message.append(TextSendMessage(text=account.mail + '\n' +'此帳號無被使用過，請放心～'))
+                        message.append(TextSendMessage(text = account.mail + '\n' +'此帳號無被使用過，請放心～'))
+
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
                     message,
                 )
-                print(message)
+                print(data)
+                print(type(data))
         return HttpResponse()
     else:
         return HttpResponseBadRequest()
