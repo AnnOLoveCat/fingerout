@@ -22,3 +22,9 @@ class News(models.Model):
     news_title = models.CharField(max_length=50)
     post_time = models.DateTimeField(auto_now='%Y/%m/%d %H:%M')
     news_content = models.CharField(max_length=1000)
+
+class Links(models.Model):
+    description = models.CharField(max_length=50)
+    web_link = models.CharField(max_length=500)
+    domain_name = models.CharField(max_length=50)
+    build_time = models.DateTimeField(auto_now='%Y/%m/%d %H:%M')
