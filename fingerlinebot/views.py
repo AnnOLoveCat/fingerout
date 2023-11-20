@@ -40,6 +40,7 @@ parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 news_information = News.objects.all().values('news_title','news_content').filter(pk=1)
 news_data = json.dumps(list(news_information),ensure_ascii=False)
 news_result = json.loads(news_data)
+
 #篩選資料庫資料庫裡的Ministry_Interior資料
 lineid_information = Ministry_Interior.objects.all().values('line_id')
 lineid_data = json.dumps(list(lineid_information),ensure_ascii=False)
@@ -64,7 +65,8 @@ def callback(request):
                 
                 #使用者的訊息
                 user_msg = event.message.text.lower()
-                
+                #Line ID的資料
+                lineid = Ministry_Interior.objects.filter(line_id=user_msg)
                 #比照資料庫裡的Mails資料
                 accounts = Mails.objects.filter(mail=user_msg)
                 #回覆給使用者訊息
@@ -97,6 +99,28 @@ def callback(request):
                                             label='詐騙Line ID',
                                             text='詐騙',
                                             data='詐騙'
+                                        ),
+                                    ]
+                                ),
+                                CarouselColumn(
+                                    title='查詢帳號',
+                                    text='查詢目前帳號是否存在並幫您查詢有被外洩的問題',
+                                    actions=[
+                                        PostbackAction(
+                                            label='查詢帳號',
+                                            text='查詢帳號',
+                                            data='查詢帳號'
+                                        ),
+                                    ]
+                                ),
+                                CarouselColumn(
+                                    title='新增帳號',
+                                    text='新增帳號，以助於之後能夠查詢是否有被外洩的問題',
+                                    actions=[
+                                        PostbackAction(
+                                            label='新增帳號',
+                                            text='新增帳號',
+                                            data='新增帳號'
                                         ),
                                     ]
                                 )
@@ -134,8 +158,14 @@ def callback(request):
                         message.append(TextSendMessage(text = '無法新增至資料庫，請等待人員幫您檢測'))
                         
                 
-                
-                
+                #詐騙Line ID
+                for line in lineid:
+                    if user_msg == line.line_id:
+                        message.append(TextSendMessage(text= '有此詐騙ID: ' + user_msg))
+                    # elif user_msg != line.line_id:
+                    #     message.append(TextSendMessage(text= '無此詐騙ID: ' + user_msg))
+
+
                 for account in accounts:
                     #判斷使用者輸入的帳號是否被使用過，回復傳入的訊息文字
                     if user_msg == account.mail and account.used == '是':
@@ -144,7 +174,7 @@ def callback(request):
                         message.append(TextSendMessage(text = account.mail + '\n' +'目前人員還在幫您檢測，會盡快幫您確認請放心～'))
                     else:
                         message.append(TextSendMessage(text = account.mail + '\n' +'此帳號無風險，請放心～'))
-
+                
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
                     message,
