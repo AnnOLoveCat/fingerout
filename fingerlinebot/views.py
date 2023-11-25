@@ -42,9 +42,14 @@ news_data = json.dumps(list(news_information),ensure_ascii=False)
 news_result = json.loads(news_data)
 
 #篩選資料庫資料庫裡的Ministry_Interior資料
-lineid_information = Ministry_Interior.objects.all().values('line_id')
+lineid_information = Ministry_Interior.objects.all().values_list('line_id',flat=True)
 lineid_data = json.dumps(list(lineid_information),ensure_ascii=False)
 lineid_result = json.loads(lineid_data)
+
+#篩選資料庫資料庫裡的Links資料
+links_information = Links.objects.all().values_list('web_link',flat=True)
+links_data = json.dumps(list(links_information),ensure_ascii=False)
+links_result = json.loads(links_data)
 
 @csrf_exempt
 def callback(request):
@@ -67,6 +72,8 @@ def callback(request):
                 user_msg = event.message.text.lower()
                 #Line ID的資料
                 lineid = Ministry_Interior.objects.filter(line_id=user_msg)
+                #Links的資料
+                fake_link = Links.objects.filter(web_link=user_msg)
                 #比照資料庫裡的Mails資料
                 accounts = Mails.objects.filter(mail=user_msg)
                 #回覆給使用者訊息
@@ -92,13 +99,35 @@ def callback(request):
                                     ]
                                 ),
                                 CarouselColumn(
-                                    title='詐騙Line ID',
-                                    text='顯示目前最近所有的Line ID',
+                                    title='詐騙用戶',
+                                    text='顯示目前最近所有的詐騙用戶',
                                     actions=[
                                         PostbackAction(
-                                            label='詐騙Line ID',
-                                            text='詐騙',
-                                            data='詐騙'
+                                            label='詐騙用戶',
+                                            text='詐騙用戶',
+                                            data='詐騙用戶'
+                                        ),
+                                    ]
+                                ),
+                                CarouselColumn(
+                                    title='詐騙網址',
+                                    text='顯示目前最近所有的詐騙網址',
+                                    actions=[
+                                        PostbackAction(
+                                            label='詐騙網址',
+                                            text='詐騙網址',
+                                            data='詐騙網址'
+                                        ),
+                                    ]
+                                ),
+                                CarouselColumn(
+                                    title='查詢網址',
+                                    text='輸入網址，幫您查詢目前網址是否為詐騙網址',
+                                    actions=[
+                                        PostbackAction(
+                                            label='查詢網址',
+                                            text='查詢網址',
+                                            data='查詢網址'
                                         ),
                                     ]
                                 ),
@@ -134,10 +163,24 @@ def callback(request):
                     title = news_result[0]['news_title']
                     content = news_result[0]['news_content']
                     message.append(TextSendMessage(text = '最新新聞：'+ '\n' + title + '\n' + '內容：' + content))
+                
+                for value in lineid_result:
+                    if user_msg == '詐騙用戶':
+                        message.clear()
+                        message.append(TextSendMessage(text = '最近的詐騙ID: '+ '\n' + lineid_data.replace(',', '\n')))
 
-                if user_msg == '詐騙':
+                
+                if user_msg == '查詢網址':
                     message.clear()
-                    message.append(TextSendMessage(text = '最近的詐騙ID: '+ '\n' + lineid_data))
+                    message.append(TextSendMessage(text = '請輸入網址'))
+                    
+                for link in links_result:
+                    if user_msg == '詐騙網址':
+                        message.clear()
+                        message.append(TextSendMessage(text = '最近的詐騙網址: '+ '\n' + links_data.replace(',', '\n')))
+
+                    
+
 
                 if user_msg == '查詢帳號' or user_msg == '新增帳號':
                     message.clear()
@@ -162,8 +205,16 @@ def callback(request):
                 for line in lineid:
                     if user_msg == line.line_id:
                         message.append(TextSendMessage(text= '有此詐騙ID: ' + user_msg))
-                    # elif user_msg != line.line_id:
-                    #     message.append(TextSendMessage(text= '無此詐騙ID: ' + user_msg))
+                    else:
+                        message.append(TextSendMessage(text= '無此詐騙ID: ' + user_msg))
+
+
+                #詐騙網址
+                for link in fake_link:
+                    if user_msg == link.web_link:
+                        message.append(TextSendMessage(text= '有此詐騙網址: ' + user_msg))
+                    else:
+                        message.append(TextSendMessage(text= '無此詐騙網址: ' + user_msg))
 
 
                 for account in accounts:
@@ -174,7 +225,9 @@ def callback(request):
                         message.append(TextSendMessage(text = account.mail + '\n' +'目前人員還在幫您檢測，會盡快幫您確認請放心～'))
                     else:
                         message.append(TextSendMessage(text = account.mail + '\n' +'此帳號無風險，請放心～'))
-                
+
+
+                print(type(lineid_data))
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
                     message,
