@@ -41,6 +41,20 @@ news_information = News.objects.all().values('news_title','news_content').filter
 news_data = json.dumps(list(news_information),ensure_ascii=False)
 news_result = json.loads(news_data)
 
+#額外的News資料，顯示全部的News
+
+news_all_information = News.objects.all().values_list('news_content',flat=True)
+news_all_data = json.dumps(list(news_all_information),ensure_ascii=False)
+news_all_result = json.loads(news_all_data)
+# news_all_title = News.objects.all().values_list('news_title',flat=True)
+# news_all_content = News.objects.all().values_list('news_content',flat=True)
+
+# news_title_data = json.dumps(list(news_all_title),ensure_ascii=False)
+# news_content_data = json.dumps(list(news_all_content),ensure_ascii=False)
+
+# news_title_result = json.loads(news_title_data)
+# news_content_result = json.loads(news_content_data)
+
 #篩選資料庫資料庫裡的Ministry_Interior資料
 lineid_information = Ministry_Interior.objects.all().values_list('line_id',flat=True)
 lineid_data = json.dumps(list(lineid_information),ensure_ascii=False)
@@ -78,6 +92,7 @@ def callback(request):
                 accounts = Mails.objects.filter(mail=user_msg)
                 #回覆給使用者訊息
                 message = []
+                message.clear()
 
                 #功能選單
                 if user_msg == '更多功能':
@@ -92,9 +107,20 @@ def callback(request):
                                     text='顯示目前最新新聞',
                                     actions=[
                                         PostbackAction(
-                                            label='新聞情報',
-                                            text='新聞',
-                                            data='新聞'
+                                            label='最新新聞',
+                                            text='最新新聞',
+                                            data='最新新聞'
+                                        ),
+                                    ]
+                                ),
+                                CarouselColumn(
+                                    title='詐騙新聞情報',
+                                    text='顯示目前最新新聞',
+                                    actions=[
+                                        PostbackAction(
+                                            label='所有新聞',
+                                            text='所有新聞',
+                                            data='所有新聞'
                                         ),
                                     ]
                                 ),
@@ -158,32 +184,35 @@ def callback(request):
                     )
             )
                     
-                if user_msg == '新聞':
-                    message.clear()
+                if user_msg == '最新新聞':
                     title = news_result[0]['news_title']
                     content = news_result[0]['news_content']
-                    message.append(TextSendMessage(text = '最新新聞：'+ '\n' + title + '\n' + '內容：' + content))
+                    message.append(TextSendMessage(text = '最新新聞：'+ "\n" + title + "\n" + '內容：' + content))
                 
-                for value in lineid_result:
-                    if user_msg == '詐騙用戶':
-                        message.clear()
-                        message.append(TextSendMessage(text = '最近的詐騙ID: '+ '\n' + lineid_data.replace(',', '\n')))
+                if user_msg == '詐騙用戶':
+                    message.append(TextSendMessage(text = '最近的詐騙ID: '+ "\n" + lineid_data.replace(',', "\n").replace('[', '').replace(']', '').replace('"', '')))
 
                 
                 if user_msg == '查詢網址':
-                    message.clear()
                     message.append(TextSendMessage(text = '請輸入網址'))
                     
-                for link in links_result:
-                    if user_msg == '詐騙網址':
-                        message.clear()
-                        message.append(TextSendMessage(text = '最近的詐騙網址: '+ '\n' + links_data.replace(',', '\n')))
-
+                if user_msg == '詐騙網址':
+                    all_links = [item.replace(',','\n') for item in links_result]
                     
+                    for num,part_links in enumerate(all_links):
+                        if num == 5:
+                            break
+                        message.append(TextSendMessage(text = '最近的詐騙網址： '+ "\n" + part_links))
 
+                if user_msg == '所有新聞':
+                    all_news = [item.replace(',','\n') for item in news_all_result]
+                    
+                    for num,part_news in enumerate(all_news):
+                        if num == 5:
+                            break
+                        message.append(TextSendMessage(text = '第'+ str(num+1) + '則' + "\n" + part_news))
 
                 if user_msg == '查詢帳號' or user_msg == '新增帳號':
-                    message.clear()
                     message.append(TextSendMessage(text = '請輸入帳號'))
 
                 if accounts.exists() and '@'in user_msg:
@@ -220,14 +249,13 @@ def callback(request):
                 for account in accounts:
                     #判斷使用者輸入的帳號是否被使用過，回復傳入的訊息文字
                     if user_msg == account.mail and account.used == '是':
-                        message.append(TextSendMessage(text = account.mail + '\n' +'此帳號有外洩風險！！！'))
+                        message.append(TextSendMessage(text = account.mail + "\n" +'此帳號有外洩風險！！！'))
                     elif user_msg == account.mail and len(account.used) == 0: 
-                        message.append(TextSendMessage(text = account.mail + '\n' +'目前人員還在幫您檢測，會盡快幫您確認請放心～'))
+                        message.append(TextSendMessage(text = account.mail + "\n" +'目前人員還在幫您檢測，會盡快幫您確認請放心～'))
                     else:
-                        message.append(TextSendMessage(text = account.mail + '\n' +'此帳號無風險，請放心～'))
+                        message.append(TextSendMessage(text = account.mail + "\n" +'此帳號無風險，請放心～'))
 
 
-                print(type(lineid_data))
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
                     message,
