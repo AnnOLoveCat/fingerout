@@ -42,7 +42,6 @@ news_data = json.dumps(list(news_information),ensure_ascii=False)
 news_result = json.loads(news_data)
 
 #額外的News資料，顯示全部的News
-
 news_all_information = News.objects.all().values_list('news_content',flat=True)
 news_all_data = json.dumps(list(news_all_information),ensure_ascii=False)
 news_all_result = json.loads(news_all_data)
@@ -254,7 +253,6 @@ def callback(request):
                         message.append(TextSendMessage(text = account.mail + "\n" +'目前人員還在幫您檢測，會盡快幫您確認請放心～'))
                     else:
                         message.append(TextSendMessage(text = account.mail + "\n" +'此帳號無風險，請放心～'))
-
 
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
