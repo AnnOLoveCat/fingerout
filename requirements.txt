@@ -1,4 +1,4 @@
-Django==3.2.18
+Django==4.2.22
 django-environ==0.10.0
 django-extensions==3.2.1
 line-bot-sdk==2.2.1
